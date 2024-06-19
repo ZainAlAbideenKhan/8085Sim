@@ -1,21 +1,23 @@
 import instruction from './instruction.json' assert { type: 'json' };
 import {HexNumber} from "./hexnum.js";
 import {RAM} from "./ram.js";
+import {MP8085ExeEngine} from "./executionEngine.js";
 class Reg8085 {
   constructor() {
-    this.A = "";
-    this.B = "";
-    this.C = "";
-    this.D = "";
-    this.E = "";
-    this.H = "";
-    this.L = "";
+    this.A = "00";
+    this.B = "00";
+    this.C = "00";
+    this.D = "00";
+    this.E = "00";
+    this.H = "00";
+    this.L = "00";
     this.PrgmCount = "";
   }
 }
 
-class MP8085 {
+class MP8085 extends MP8085ExeEngine {
   constructor() {
+    super();
     this.mp_state = "start";
     this.screen_selected = false;
     this.ram = new RAM();
@@ -106,6 +108,21 @@ class MP8085 {
     
     this.mp_state = "inp data";
     this.startDataInp();
+  }
+  inpExecAdr() {
+    this.position_screen(4, 23);
+    this.htm_text.innerHTML = "G";
+    this.htm_input.innerHTML = "";
+    this.mp_state = "inp execAdr";
+  }
+  execute() {
+    this.registers.PrgmCount = this.htm_input.innerHTML.toUpperCase();
+    // reset
+    this.htm_input.innerHTML = "";
+
+    this.execEngine();
+
+    this.htm_text.innerHTML = "EXECUTING";
   }
   // utility
   static instrMemorySplit(raw_instr) {
