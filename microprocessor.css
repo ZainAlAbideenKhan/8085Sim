@@ -1,0 +1,59 @@
+@font-face {
+  font-family: 'square matrix regular';
+  src: url('https://raw.githubusercontent.com/ZainAlAbideenKhan/fonts/main/Square-Dot-Matrix.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+/* TEMP */
+body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+}
+
+.reset-button button {
+  width: 70px;
+  height: 70px;
+  font-family: system-ui;
+  letter-spacing: 1.5px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: #f92f2f;
+  border: solid 1px gray;
+  border-radius: 7.5px;
+  cursor: pointer;
+}
+
+.screen {
+  position: relative;
+  width: 400px;
+  height: 90px;
+  border: solid 3px #151515;
+  border-radius: 4px;
+  background-color: #54de3f;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.screen .text {
+  position: absolute;
+  font-size: 30px;
+  font-family: 'square matrix regular', sans-serif;
+  font-weight: 600;
+  top: 10px;
+  left: 50px;
+  color: #11200e;
+}
+.screen .input {
+  position: absolute;
+  font-size: 30px;
+  font-family: 'square matrix regular', sans-serif;
+  font-weight: 600;
+  top: 10px;
+  left: 4px;
+  color: #11200e;
+}

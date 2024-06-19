@@ -1,0 +1,177 @@
+{
+  "MOV": {
+    "arguments": 2,
+    "hasComma": true,
+    "bytes": 1
+  },
+  "MVI": {
+    "arguments": 2,
+    "hasComma": false,
+    "bytes": 2
+  },
+  "LXI": {
+    "arguments": 2,
+    "hasComma": true,
+    "bytes": 3
+  },
+  "LDA": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "STA": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "LHLD": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "SHLD": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "LDAX": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "STAX": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "XCHG": {
+    "arguments": 0,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "ADD": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "ADI": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 2
+  },
+  "SUB": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "SUI": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 2
+  },
+  "INR": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "DCR": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "INX": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "DCX": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "DAD": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "CMA": {
+    "arguments": 0,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "CMP": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "CPI": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 2
+  },
+  "JMP": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "JC": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "JNC": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "JZ": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "JNZ": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "CALL": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 3
+  },
+  "RET": {
+    "arguments": 0,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "RST": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "PUSH": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "POP": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 1
+  },
+  "IN": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 2
+  },
+  "OUT": {
+    "arguments": 1,
+    "hasComma": false,
+    "bytes": 2
+  },
+  "HLT": {
+    "arguments": 0,
+    "hasComma": false,
+    "bytes": 1
+  }
+}
