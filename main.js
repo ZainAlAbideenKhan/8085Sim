@@ -5,12 +5,8 @@ let mp = new MP8085();
 // for testing
 window.mp = mp;
 // initialisation
-
-// test
-mp.ram.memory_map["2000"] = "MOV A, B";
-mp.registers.B = "05";
-
 mp.start();
+
 mp.htm_reset_btn.addEventListener("click", function () {
   mp.start();
   alert("microprocessor reset, click on its screen to deselect reset button.");
@@ -58,7 +54,7 @@ window.addEventListener("keypress", (e) => {
   } else if (mp.mp_state == "inp execAdr") {
     if (HexNumber.isValidDigit(e.key) && mp.htm_input.innerHTML.length < 4) {
       mp.htm_input.append(e.key);
-    } else if (e.key == "Enter") {
+    } else if (e.key == "$") {
       mp.execute();
     }
   }

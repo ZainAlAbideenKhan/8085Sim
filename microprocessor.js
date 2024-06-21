@@ -1,7 +1,7 @@
-import instruction from './instruction.json' assert { type: 'json' };
-import {HexNumber} from "./hexnum.js";
-import {RAM} from "./ram.js";
-import {MP8085ExeEngine} from "./executionEngine.js";
+import instruction from "./instruction.json" assert { type: "json" };
+import { HexNumber } from "./hexnum.js";
+import { RAM } from "./ram.js";
+import { MP8085ExeEngine } from "./executionEngine.js";
 class Reg8085 {
   constructor() {
     this.A = "00";
@@ -11,7 +11,15 @@ class Reg8085 {
     this.E = "00";
     this.H = "00";
     this.L = "00";
+    this.M = "00";
     this.PrgmCount = "";
+    this.flag = {
+      sign: false,
+      zero: false,
+      auxCarry: false,
+      parity: false,
+      carry: false,
+    };
   }
 }
 
@@ -28,10 +36,10 @@ class MP8085 extends MP8085ExeEngine {
     this.htm_reset_btn = document.querySelector("#reset-btn");
   }
   position_screen(text = null, input = null) {
-    if(text != null) {
+    if (text != null) {
       this.htm_text.style.left = text + "px";
     }
-    if(input != null) {
+    if (input != null) {
       this.htm_input.style.left = input + "px";
     }
   }
@@ -83,7 +91,7 @@ class MP8085 extends MP8085ExeEngine {
     this.position_screen(4, 137);
     let ram_adr = this.htm_input.innerHTML;
     let old_data;
-    if(ram_adr in this.ram.memory_map) {
+    if (ram_adr in this.ram.memory_map) {
       old_data = this.ram.memory_map[ram_adr];
     } else {
       old_data = "00";
@@ -95,17 +103,17 @@ class MP8085 extends MP8085ExeEngine {
   }
   inpData() {
     let data = this.htm_input.innerHTML.slice(0, 2);
-    if(data.length == 0) {
-      data = "00";
-    } else if(data.length == 1) {
+    if (data.length == 0) {
+      data = null;
+    } else if (data.length == 1) {
       data = "0" + data;
     }
 
     let ram_adr = this.htm_text.innerHTML.slice(0, 4).toUpperCase();
 
-    this.ram.memory_map[ram_adr] = data;
+    if (data != null) this.ram.memory_map[ram_adr] = data.toUpperCase();
     this.htm_input.innerHTML = HexNumber.add(ram_adr, 1);
-    
+
     this.mp_state = "inp data";
     this.startDataInp();
   }
@@ -128,13 +136,13 @@ class MP8085 extends MP8085ExeEngine {
   static instrMemorySplit(raw_instr) {
     raw_instr = raw_instr.trim();
     let instr = raw_instr.split(/[\s,]+/);
-    
+
     const instrInfo = instruction[instr[0]];
-  
-    if(instrInfo.bytes == 1) {
+
+    if (instrInfo.bytes == 1) {
       return [raw_instr];
-    } 
-    if(instrInfo.bytes >= 2 && instrInfo.arguments == 2) {
+    }
+    if (instrInfo.bytes >= 2 && instrInfo.arguments == 2) {
       instr[0] += ` ${instr[1]}`;
       instr.splice(1, 1);
     }
@@ -144,11 +152,11 @@ class MP8085 extends MP8085ExeEngine {
       instr[1] = l_bit;
       instr.push(h_bit);
     }
- 
+
     return instr;
   }
-  static checkValidInstructionChar(inst){
-    if(/^[0-9a-zA-Z\s,]+$/.test(inst) && inst != "Enter") {
+  static checkValidInstructionChar(inst) {
+    if (/^[0-9a-zA-Z\s,]+$/.test(inst) && inst != "Enter") {
       return true;
     } else {
       return false;
@@ -156,4 +164,4 @@ class MP8085 extends MP8085ExeEngine {
   }
 }
 
-export {MP8085};
+export { MP8085 };
