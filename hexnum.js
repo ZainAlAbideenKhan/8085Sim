@@ -1,6 +1,6 @@
 class BinNumber {
   static toNearestByte(a) {
-    if(a.length % 8 == 0) return a;
+    if (a.length % 8 == 0) return a;
     let remain_len = 8 - (a.length % 8);
     a = "0".repeat(remain_len) + a;
     return a;
@@ -70,14 +70,13 @@ class BinNumber {
       return num;
     }
 
-    num = num.split('');
+    num = num.split("");
     // 1's compliment of num
     num.forEach((i, idx) => {
       num[idx] = i == "0" ? "1" : "0";
     });
-    num = num.join('');
+    num = num.join("");
 
-    
     if (compliment == 2) {
       // 2's compliment of num
       num = BinNumber.add(num, "00000001");
@@ -94,7 +93,7 @@ class BinNumber {
     } else {
       opp_cache.CY = false;
     }
-    if(a[4] != '1') {
+    if (a[4] != "1") {
       opp_cache.AC = true;
     } else {
       opp_cache.AC = false;
@@ -106,8 +105,8 @@ class BinNumber {
 class HexNumber {
   // utility
   static isValidDigit(d) {
-    const hexRegex = /^(0x|0X)?[0-9a-fA-F]+$/;
-    return hexRegex.test(d);
+    const Regex = /^(0x|0X)?[0-9a-fA-F]+$/;
+    return Regex.test(d);
   }
   static toInt(a) {
     return parseInt(a, 16);
@@ -125,6 +124,22 @@ class HexNumber {
     return a.slice(a.length - dig, a.length);
   }
   // Arithematic
+  // special subtract 1 for address
+  static decHex(a) {
+    a = HexNumber.toInt(a);
+    if (a == 0) {
+      opp_cache.CY = false;
+      return "FF";
+    }
+    return HexNumber.toHex(a - 1);
+  }
+  // special addition for PrgmCounter
+  static addHex(a, b) {
+    a = HexNumber.toInt(a);
+    b = HexNumber.toInt(b);
+    return HexNumber.toHex(a + b);
+  }
+
   static add(a, b) {
     a = BinNumber.HextoBin(a);
     b = BinNumber.HextoBin(b);

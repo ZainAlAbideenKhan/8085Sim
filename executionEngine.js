@@ -4,6 +4,7 @@ class MP8085ExeEngine {
   constructor() {}
   execEngine() {
     let instr_name = this.fetchInstrName();
+    if (instr_name == null) return;
     let termination = false;
 
     this.resolveReg_M();
@@ -41,51 +42,39 @@ class MP8085ExeEngine {
         break;
       case "ADD":
         termination = this.ADD();
-        this.setStatusFlag();
         break;
       case "ADI":
         termination = this.ADI();
-        this.setStatusFlag();
         break;
       case "SUB":
         termination = this.SUB();
-        this.setStatusFlag();
         break;
       case "SUI":
         termination = this.SUI();
-        this.setStatusFlag();
         break;
       case "INR":
         termination = this.INR();
-        this.setStatusFlag();
         break;
       case "DCR":
         termination = this.DCR();
-        this.setStatusFlag();
         break;
       case "INX":
         termination = this.INX();
-        this.setStatusFlag();
         break;
       case "DCX":
         termination = this.DCX();
-        this.setStatusFlag();
         break;
       case "DAD":
         termination = this.DAD();
-        this.setStatusFlag();
         break;
       case "CMA":
         termination = this.CMA();
-        this.setStatusFlag();
         break;
       case "CMP":
         termination = this.CMP();
-        this.setStatusFlag();
         break;
       case "CPI":
         termination = this.CPI();
-        this.setStatusFlag();
         break;
       case "JMP":
         termination = this.JMP();
@@ -131,19 +120,10 @@ class MP8085ExeEngine {
         break;
     }
     if (termination) return;
-    this.inrPrgmCount();
     this.execEngine();
   }
 
   // utility
-  setStatusFlag() {
-    this.registers.flag.sign = opp_cache.S;
-    this.registers.flag.zero = opp_cache.Z;
-    this.registers.flag.auxCarry = opp_cache.AC;
-    this.registers.flag.parity = opp_cache.P;
-    this.registers.flag.carry = opp_cache.CY;
-  }
-
   resolveReg_M() {
     let a = this.getReg("L");
     a = this.getReg("H") + a;
@@ -159,7 +139,11 @@ class MP8085ExeEngine {
   }
 
   inrPrgmCount() {
-    this.registers.PrgmCount = HexNumber.add(this.registers.PrgmCount, 1);
+    this.registers.PrgmCount = HexNumber.addHex(this.registers.PrgmCount, 1);
+  }
+
+  setPrgmCount(adr) {
+    this.registers.PrgmCount = adr;
   }
 
   fetchData(adr = null) {
@@ -199,6 +183,7 @@ class MP8085ExeEngine {
     let instr = this.splitInstr();
     this.registers[instr[1]] = this.registers[instr[2]];
 
+    this.inrPrgmCount();
     return false;
   }
   MVI() {
@@ -206,6 +191,7 @@ class MP8085ExeEngine {
     this.inrPrgmCount();
     this.setReg(reg, this.fetchData());
 
+    this.inrPrgmCount();
     return false;
   }
   LXI() {
@@ -223,6 +209,7 @@ class MP8085ExeEngine {
     this.inrPrgmCount();
     this.setReg(reg, this.fetchData());
 
+    this.inrPrgmCount();
     return false;
   }
   LDA() {
@@ -236,6 +223,7 @@ class MP8085ExeEngine {
       this.setReg("A", "00");
     }
 
+    this.inrPrgmCount();
     return false;
   }
   STA() {
@@ -245,6 +233,7 @@ class MP8085ExeEngine {
     adr = this.fetchData() + adr;
     this.ram.memory_map[adr] = this.registers.A;
 
+    this.inrPrgmCount();
     return false;
   }
   LHLD() {
@@ -255,6 +244,7 @@ class MP8085ExeEngine {
     this.setReg("H", h_bit);
     this.setReg("L", l_bit);
 
+    this.inrPrgmCount();
     return false;
   }
   SHLD() {
@@ -269,6 +259,7 @@ class MP8085ExeEngine {
     let adr_Hbit = this.fetchData();
     this.storeData(adr_Hbit, h_bit);
 
+    this.inrPrgmCount();
     return false;
   }
   LDAX() {
@@ -287,6 +278,7 @@ class MP8085ExeEngine {
     let data = this.fetchData(h_bit + l_bit);
     this.setReg("A", data);
 
+    this.inrPrgmCount();
     return false;
   }
   STAX() {
@@ -305,6 +297,7 @@ class MP8085ExeEngine {
     let data = this.getReg("A");
     this.storeData(h_bit + l_bit, data);
 
+    this.inrPrgmCount();
     return false;
   }
   XCHG() {
@@ -316,6 +309,7 @@ class MP8085ExeEngine {
     this.setReg("L", this.getReg("E"));
     this.setReg("E", temp);
 
+    this.inrPrgmCount();
     return false;
   }
   ADD() {
@@ -324,14 +318,17 @@ class MP8085ExeEngine {
     sum = HexNumber.add(sum, this.getReg(reg));
     this.setReg("A", sum);
 
+    this.inrPrgmCount();
     return false;
   }
   ADI() {
-    let num = this.splitInstr()[1];
     let sum = this.getReg("A");
+    this.inrPrgmCount();
+    let num = this.splitInstr()[0];
     sum = HexNumber.add(sum, num);
     this.setReg("A", sum);
 
+    this.inrPrgmCount();
     return false;
   }
   SUB() {
@@ -340,14 +337,17 @@ class MP8085ExeEngine {
     diff = HexNumber.sub(diff, this.getReg(reg));
     this.setReg("A", diff);
 
+    this.inrPrgmCount();
     return false;
   }
   SUI() {
-    let num = this.splitInstr()[1];
     let sum = this.getReg("A");
+    this.inrPrgmCount();
+    let num = this.splitInstr()[0];
     sum = HexNumber.sub(sum, num);
     this.setReg("A", sum);
 
+    this.inrPrgmCount();
     return false;
   }
   INR() {
@@ -355,76 +355,162 @@ class MP8085ExeEngine {
     let inrc = HexNumber.add(this.getReg(reg), 1);
     this.setReg(reg, inrc);
 
+    this.inrPrgmCount();
     return false;
   }
   DCR() {
     let reg = this.splitInstr()[1];
-    let inrc = HexNumber.sub(this.getReg(reg), 1);
-    this.setReg(reg, inrc);
+    let dcrc = HexNumber.sub(this.getReg(reg), 1);
+    this.setReg(reg, dcrc);
 
+    this.inrPrgmCount();
     return false;
   }
   INX() {
     let reg = this.splitInstr()[1];
-    let num4byte;
 
     if (reg == "B") {
-      num4byte = this.getReg("B") + this.getReg("C");
-      num4byte = HexNumber.add(num4byte, 1);
+      let regL = this.getReg("C");
+      regL = HexNumber.add(regL, "01");
 
-      this.setReg("B", num4byte.slice(num4byte.length - 4, num4byte.length - 2));
-      this.setReg("C", num4byte.slice(num4byte.length - 2, num4byte.length));
+      if (regL == "00") {
+        let regH = this.getReg("B");
+        regH = HexNumber.add(regH, "01");
+        this.setReg("B", regH);
+      }
+
+      this.setReg("C", regL);
     } else if (reg == "D") {
-      num4byte = this.getReg("D") + this.getReg("E");
-      num4byte = HexNumber.add(num4byte, 1);
-      
-      this.setReg("D", num4byte.slice(num4byte.length - 4, num4byte.length - 2));
-      this.setReg("E", num4byte.slice(num4byte.length - 2, num4byte.length));
+      let regL = this.getReg("E");
+      regL = HexNumber.add(regL, "01");
+
+      if (regL == "00") {
+        let regH = this.getReg("D");
+        regH = HexNumber.add(regH, "01");
+        this.setReg("D", regH);
+      }
+
+      this.setReg("E", regL);
     } else if (reg == "H") {
-      num4byte = this.getReg("H") + this.getReg("L");
-      num4byte = HexNumber.add(num4byte, 1);
-      
-      this.setReg("H", num4byte.slice(num4byte.length - 4, num4byte.length - 2));
-      this.setReg("L", num4byte.slice(num4byte.length - 2, num4byte.length));
+      let regL = this.getReg("L");
+      regL = HexNumber.add(regL, "01");
+
+      if (regL == "00") {
+        let regH = this.getReg("H");
+        regH = HexNumber.add(regH, "01");
+        this.setReg("H", regH);
+      }
+
+      this.setReg("L", regL);
     }
 
+    this.inrPrgmCount();
     return false;
   }
   DCX() {
-        let reg = this.splitInstr()[1];
-    let num4byte;
+    let reg = this.splitInstr()[1];
 
     if (reg == "B") {
-      num4byte = this.getReg("B") + this.getReg("C");
-      num4byte = HexNumber.sub(num4byte, 1);
+      let regL = this.getReg("C");
+      regL = HexNumber.decHex(regL);
 
-      this.setReg("B", num4byte.slice(num4byte.length - 4, num4byte.length - 2));
-      this.setReg("C", num4byte.slice(num4byte.length - 2, num4byte.length));
+      if (regL == "FF") {
+        let regH = this.getReg("B");
+        regH = HexNumber.sub(regH, "01");
+        this.setReg("B", regH);
+      }
+
+      this.setReg("C", regL);
     } else if (reg == "D") {
-      num4byte = this.getReg("D") + this.getReg("E");
-      num4byte = HexNumber.sub(num4byte, 1);
-      
-      this.setReg("D", num4byte.slice(num4byte.length - 4, num4byte.length - 2));
-      this.setReg("E", num4byte.slice(num4byte.length - 2, num4byte.length));
+      let regL = this.getReg("E");
+      regL = HexNumber.decHex(regL, "01");
+
+      if (regL == "FF") {
+        let regH = this.getReg("D");
+        regH = HexNumber.sub(regH, "01");
+        this.setReg("D", regH);
+      }
+
+      this.setReg("E", regL);
     } else if (reg == "H") {
-      num4byte = this.getReg("H") + this.getReg("L");
-      num4byte = HexNumber.sub(num4byte, 1);
-      
-      this.setReg("H", num4byte.slice(num4byte.length - 4, num4byte.length - 2));
-      this.setReg("L", num4byte.slice(num4byte.length - 2, num4byte.length));
+      let regL = this.getReg("L");
+      regL = HexNumber.decHex(regL, "01");
+
+      if (regL == "FF") {
+        let regH = this.getReg("H");
+        regH = HexNumber.sub(regH, "01");
+        this.setReg("H", regH);
+      }
+
+      this.setReg("L", regL);
     }
 
+    this.inrPrgmCount();
     return false;
   }
   DAD() {}
   CMA() {}
   CMP() {}
   CPI() {}
-  JMP() {}
-  JC() {}
-  JNC() {}
-  JZ() {}
-  JNZ() {}
+  JMP() {
+    this.inrPrgmCount();
+    let l_bit = this.splitInstr()[0]
+    this.inrPrgmCount();
+    let h_bit = this.splitInstr()[0];
+    this.setPrgmCount(h_bit + l_bit);
+
+    return false;
+  }
+  JC() {
+    if(opp_cache.CY) {
+      this.inrPrgmCount();
+      let l_bit = this.splitInstr()[0]
+      this.inrPrgmCount();
+      let h_bit = this.splitInstr()[0];
+      this.setPrgmCount(h_bit + l_bit);
+    } else {
+      this.inrPrgmCount();
+    }
+
+    return false;
+  }
+  JNC() {
+    if(!opp_cache.CY) {
+      this.inrPrgmCount();
+      let l_bit = this.splitInstr()[0]
+      this.inrPrgmCount();
+      let h_bit = this.splitInstr()[0];
+      this.setPrgmCount(h_bit + l_bit);
+    } else {
+      this.inrPrgmCount();
+    }
+  }
+  JZ() {
+    if(opp_cache.Z) {
+      this.inrPrgmCount();
+      let l_bit = this.splitInstr()[0]
+      this.inrPrgmCount();
+      let h_bit = this.splitInstr()[0];
+      this.setPrgmCount(h_bit + l_bit);
+    } else {
+      this.inrPrgmCount();
+    }
+
+    return false;
+  }
+  JNZ() {
+    if(!opp_cache.Z) {
+      this.inrPrgmCount();
+      let l_bit = this.splitInstr()[0]
+      this.inrPrgmCount();
+      let h_bit = this.splitInstr()[0];
+      this.setPrgmCount(h_bit + l_bit);
+    } else {
+      this.inrPrgmCount();
+    }
+
+    return false;
+  }
   CALL() {}
   RET() {}
   RST() {}

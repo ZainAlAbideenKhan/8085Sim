@@ -13,13 +13,6 @@ class Reg8085 {
     this.L = "00";
     this.M = "00";
     this.PrgmCount = "";
-    this.flag = {
-      sign: false,
-      zero: false,
-      auxCarry: false,
-      parity: false,
-      carry: false,
-    };
   }
 }
 
