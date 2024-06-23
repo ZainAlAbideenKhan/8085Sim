@@ -7,10 +7,11 @@ window.mp = mp;
 // initialisation
 mp.start();
 
-mp.htm_reset_btn.addEventListener("click", function () {
+mp.htm_reset_btn.addEventListener("click", function (event) {
   mp.start();
-  alert("microprocessor reset, click on its screen to deselect reset button.");
+  event.target.blur();
 });
+
 window.addEventListener("keypress", (e) => {
   if (mp.mp_state == "start") {
     if (e.key == "1") {
@@ -38,6 +39,11 @@ window.addEventListener("keypress", (e) => {
       mp.htm_input.append(e.key);
     } else if (e.key == "Enter") {
       mp.inpCode();
+    } else if (e.key == "\\") {
+      mp.htm_input.innerHTML = mp.htm_input.innerHTML.slice(
+        0,
+        mp.htm_input.innerHTML.length - 1
+      );
     }
   } else if (mp.mp_state == "inp dataAdr") {
     if (HexNumber.isValidDigit(e.key) && mp.htm_input.innerHTML.length < 4) {
@@ -59,3 +65,5 @@ window.addEventListener("keypress", (e) => {
     }
   }
 });
+
+export {mp};

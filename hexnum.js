@@ -111,8 +111,12 @@ class HexNumber {
   static toInt(a) {
     return parseInt(a, 16);
   }
-  static toHex(a) {
-    return a.toString(16).toUpperCase();
+  static toHex(a, len = 2) {
+    a = a.toString(16).toUpperCase();
+    if(a.length >= len) return a;
+    let remain_len = len - (a.length % len);
+    a = "0".repeat(remain_len) + a;
+    return a;
   }
   static BintoHex(a) {
     // let orig_len = a.length;

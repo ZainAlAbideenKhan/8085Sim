@@ -7,8 +7,6 @@ class MP8085ExeEngine {
     if (instr_name == null) return;
     let termination = false;
 
-    this.resolveReg_M();
-
     switch (instr_name) {
       case "MOV":
         termination = this.MOV();
@@ -124,11 +122,15 @@ class MP8085ExeEngine {
   }
 
   // utility
-  resolveReg_M() {
-    let a = this.getReg("L");
-    a = this.getReg("H") + a;
-    a = this.fetchData(a);
-    this.setReg("M", a);
+
+  getLowerPairNm(regH) {
+    if (regH == "B") {
+      return "C";
+    } else if (regH == "D") {
+      return "E";
+    } else if (regH == "H") {
+      return "L";
+    } else return null;
   }
 
   fetchInstrName() {
@@ -170,26 +172,40 @@ class MP8085ExeEngine {
   }
 
   setReg(reg, data) {
-    this.registers[reg] = data;
+    if (reg == "M") {
+      let adr = this.getReg("H") + this.getReg("L");
+      this.storeData(adr, data);
+    } else {
+      this.registers[reg] = data;
+    }
   }
 
   getReg(reg) {
-    return this.registers[reg];
+    if (reg == "M") {
+      let adr = this.getReg("H") + this.getReg("L");
+      return this.fetchData(adr);
+    } else {
+      return this.registers[reg];
+    }
   }
 
   // instruction
 
   MOV() {
     let instr = this.splitInstr();
-    this.registers[instr[1]] = this.registers[instr[2]];
-
+    this.setReg(instr[1], this.getReg(instr[2]));
     this.inrPrgmCount();
+
+    opp_log.push(`${instr[1]} <- ${instr[2]}(${this.getReg(instr[2])})`);
+
     return false;
   }
   MVI() {
     let reg = this.splitInstr()[1];
     this.inrPrgmCount();
     this.setReg(reg, this.fetchData());
+
+    opp_log.push(`${reg} <- ${this.fetchData()}`);
 
     this.inrPrgmCount();
     return false;
@@ -198,17 +214,26 @@ class MP8085ExeEngine {
     let reg = this.splitInstr()[1];
     this.inrPrgmCount();
 
+    let log_data = [];
+
     if (reg == "B") {
       this.setReg("C", this.fetchData());
+
+      log_data.push("C", this.fetchData());
     } else if (reg == "D") {
       this.setReg("E", this.fetchData());
+
+      log_data.push("E", this.fetchData());
     } else if (reg == "H") {
       this.setReg("L", this.fetchData());
+
+      log_data.push("L", this.fetchData());
     }
 
     this.inrPrgmCount();
     this.setReg(reg, this.fetchData());
 
+    opp_log.push(`${reg}${log_data[0]} <- ${this.fetchData()}${log_data[1]}`);
     this.inrPrgmCount();
     return false;
   }
@@ -223,6 +248,8 @@ class MP8085ExeEngine {
       this.setReg("A", "00");
     }
 
+    opp_log.push(`A <- ${this.getReg("A")}`);
+
     this.inrPrgmCount();
     return false;
   }
@@ -232,6 +259,8 @@ class MP8085ExeEngine {
     this.inrPrgmCount();
     adr = this.fetchData() + adr;
     this.ram.memory_map[adr] = this.registers.A;
+
+    opp_log.push(`[${adr}] <- A(${this.getReg("A")})`);
 
     this.inrPrgmCount();
     return false;
@@ -244,6 +273,8 @@ class MP8085ExeEngine {
     this.setReg("H", h_bit);
     this.setReg("L", l_bit);
 
+    opp_log.push(`HL <- ${h_bit + l_bit}`);
+
     this.inrPrgmCount();
     return false;
   }
@@ -252,12 +283,15 @@ class MP8085ExeEngine {
     let l_bit = this.getReg("L");
 
     this.inrPrgmCount();
-    let adr_Lbit = this.fetchData();
-    this.storeData(adr_Lbit, l_bit);
-
+    let adr = this.fetchData();
     this.inrPrgmCount();
-    let adr_Hbit = this.fetchData();
-    this.storeData(adr_Hbit, h_bit);
+    adr = this.fetchData() + adr;
+    opp_log.push(`[${adr}] <- L(${l_bit})`);
+    this.storeData(adr, l_bit);
+
+    adr = HexNumber.addHex(adr, '1');
+    this.storeData(adr, h_bit);
+    opp_log.push(`[${adr}] <- H(${h_bit})`);
 
     this.inrPrgmCount();
     return false;
@@ -278,6 +312,10 @@ class MP8085ExeEngine {
     let data = this.fetchData(h_bit + l_bit);
     this.setReg("A", data);
 
+    opp_log.push(
+      `A <- [${reg}${reg == "B" ? "C" : "E"}(${h_bit + l_bit})](${data})`
+    );
+
     this.inrPrgmCount();
     return false;
   }
@@ -296,6 +334,10 @@ class MP8085ExeEngine {
 
     let data = this.getReg("A");
     this.storeData(h_bit + l_bit, data);
+
+    opp_log.push(
+      `[${reg}${reg == "B" ? "C" : "E"}(${h_bit + l_bit})] <- A(${data})`
+    );
 
     this.inrPrgmCount();
     return false;
@@ -316,7 +358,10 @@ class MP8085ExeEngine {
     let reg = this.splitInstr()[1];
     let sum = this.getReg("A");
     sum = HexNumber.add(sum, this.getReg(reg));
+
     this.setReg("A", sum);
+
+    opp_log.push(`A <- A(${this.getReg("A")}) + ${reg}(${this.getReg(reg)})`);
 
     this.inrPrgmCount();
     return false;
@@ -328,6 +373,8 @@ class MP8085ExeEngine {
     sum = HexNumber.add(sum, num);
     this.setReg("A", sum);
 
+    opp_log.push(`A <- A(${this.getReg("A")}) + ${num}`);
+
     this.inrPrgmCount();
     return false;
   }
@@ -336,6 +383,8 @@ class MP8085ExeEngine {
     let diff = this.getReg("A");
     diff = HexNumber.sub(diff, this.getReg(reg));
     this.setReg("A", diff);
+
+    opp_log.push(`A <- A(${this.getReg("A")}) - ${reg}(${this.getReg(reg)})`);
 
     this.inrPrgmCount();
     return false;
@@ -347,6 +396,8 @@ class MP8085ExeEngine {
     sum = HexNumber.sub(sum, num);
     this.setReg("A", sum);
 
+    opp_log.push(`A <- A(${this.getReg("A")}) - ${num}`);
+
     this.inrPrgmCount();
     return false;
   }
@@ -354,6 +405,8 @@ class MP8085ExeEngine {
     let reg = this.splitInstr()[1];
     let inrc = HexNumber.add(this.getReg(reg), 1);
     this.setReg(reg, inrc);
+
+    opp_log.push(`${reg}(${this.getReg(reg)})++`);
 
     this.inrPrgmCount();
     return false;
@@ -363,12 +416,13 @@ class MP8085ExeEngine {
     let dcrc = HexNumber.sub(this.getReg(reg), 1);
     this.setReg(reg, dcrc);
 
+    opp_log.push(`${reg}(${this.getReg(reg)})--`);
+
     this.inrPrgmCount();
     return false;
   }
   INX() {
     let reg = this.splitInstr()[1];
-
     if (reg == "B") {
       let regL = this.getReg("C");
       regL = HexNumber.add(regL, "01");
@@ -380,6 +434,7 @@ class MP8085ExeEngine {
       }
 
       this.setReg("C", regL);
+      opp_log.push(`BC(${this.getReg("B") + this.getReg("C")})++`);
     } else if (reg == "D") {
       let regL = this.getReg("E");
       regL = HexNumber.add(regL, "01");
@@ -391,6 +446,7 @@ class MP8085ExeEngine {
       }
 
       this.setReg("E", regL);
+      opp_log.push(`DE(${this.getReg("D") + this.getReg("E")})++`);
     } else if (reg == "H") {
       let regL = this.getReg("L");
       regL = HexNumber.add(regL, "01");
@@ -402,6 +458,7 @@ class MP8085ExeEngine {
       }
 
       this.setReg("L", regL);
+      opp_log.push(`HL(${this.getReg("H") + this.getReg("L")})++`);
     }
 
     this.inrPrgmCount();
@@ -421,6 +478,7 @@ class MP8085ExeEngine {
       }
 
       this.setReg("C", regL);
+      opp_log.push(`BC(${this.getReg("B") + this.getReg("C")})--`);
     } else if (reg == "D") {
       let regL = this.getReg("E");
       regL = HexNumber.decHex(regL, "01");
@@ -432,6 +490,7 @@ class MP8085ExeEngine {
       }
 
       this.setReg("E", regL);
+      opp_log.push(`DE(${this.getReg("D") + this.getReg("E")})--`);
     } else if (reg == "H") {
       let regL = this.getReg("L");
       regL = HexNumber.decHex(regL, "01");
@@ -443,69 +502,105 @@ class MP8085ExeEngine {
       }
 
       this.setReg("L", regL);
+      opp_log.push(`HL(${this.getReg("H") + this.getReg("L")})--`);
     }
 
     this.inrPrgmCount();
     return false;
   }
-  DAD() {}
+  DAD() {
+    let regH = this.splitInstr()[1];
+    let regL = this.getLowerPairNm(regH);
+
+    let l_sum = HexNumber.add(this.getReg(regL), this.getReg("L"));
+    let h_sum;
+    if (opp_cache.CY) h_sum = HexNumber.add(this.getReg('H'), "01");
+    h_sum = HexNumber.add(this.getReg(regH), h_sum);
+    
+    opp_log.push(
+      `HL <- HL(${this.getReg("H") + this.getReg("L")}) + ${
+        this.getReg(regH) + this.getReg(regL)
+      }`
+    );
+
+    this.setReg("H", h_sum);
+    this.setReg("L", l_sum);
+
+    this.inrPrgmCount();
+    return 0;
+  }
   CMA() {}
   CMP() {}
   CPI() {}
   JMP() {
     this.inrPrgmCount();
-    let l_bit = this.splitInstr()[0]
+    let l_bit = this.splitInstr()[0];
     this.inrPrgmCount();
     let h_bit = this.splitInstr()[0];
     this.setPrgmCount(h_bit + l_bit);
 
+    opp_log.push(`JUMP TO ${h_bit + l_bit}`);
     return false;
   }
   JC() {
-    if(opp_cache.CY) {
+    if (opp_cache.CY) {
       this.inrPrgmCount();
-      let l_bit = this.splitInstr()[0]
+      let l_bit = this.splitInstr()[0];
       this.inrPrgmCount();
       let h_bit = this.splitInstr()[0];
       this.setPrgmCount(h_bit + l_bit);
+
+      opp_log.push(`CY = 1, JUMP ${h_bit + l_bit}`);
     } else {
+      opp_log.push("CY!= 1, JUMP IGNORED");
       this.inrPrgmCount();
     }
 
     return false;
   }
   JNC() {
-    if(!opp_cache.CY) {
+    if (!opp_cache.CY) {
       this.inrPrgmCount();
-      let l_bit = this.splitInstr()[0]
+      let l_bit = this.splitInstr()[0];
       this.inrPrgmCount();
       let h_bit = this.splitInstr()[0];
       this.setPrgmCount(h_bit + l_bit);
+
+      opp_log.push(`CY = 0, JUMP TO ${h_bit + l_bit}`);
     } else {
+      opp_log.push("CY!= 0, JUMP IGNORED");
       this.inrPrgmCount();
     }
+
+    return false;
   }
   JZ() {
-    if(opp_cache.Z) {
+    if (opp_cache.Z) {
       this.inrPrgmCount();
-      let l_bit = this.splitInstr()[0]
+      let l_bit = this.splitInstr()[0];
       this.inrPrgmCount();
       let h_bit = this.splitInstr()[0];
       this.setPrgmCount(h_bit + l_bit);
+
+      opp_log.push(`Z = 1, JUMP TO ${h_bit + l_bit}`);
     } else {
+      opp_log.push("Z != 1, JUMP IGNORED");
       this.inrPrgmCount();
     }
 
     return false;
   }
   JNZ() {
-    if(!opp_cache.Z) {
+    if (!opp_cache.Z) {
       this.inrPrgmCount();
-      let l_bit = this.splitInstr()[0]
+      let l_bit = this.splitInstr()[0];
       this.inrPrgmCount();
       let h_bit = this.splitInstr()[0];
       this.setPrgmCount(h_bit + l_bit);
+
+      opp_log.push(`Z = 0, JUMP TO ${h_bit + l_bit}`);
     } else {
+      opp_log.push("Z != 0, JUMP IGNORED");
       this.inrPrgmCount();
     }
 
@@ -519,6 +614,7 @@ class MP8085ExeEngine {
   IN() {}
   OUT() {}
   HLT() {
+    opp_log.push("HAULT");
     return true;
   }
 }

@@ -11,8 +11,8 @@ class Reg8085 {
     this.E = "00";
     this.H = "00";
     this.L = "00";
-    this.M = "00";
     this.PrgmCount = "";
+    this.stackPtr = "";
   }
 }
 
