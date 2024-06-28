@@ -4,17 +4,36 @@
   font-weight: normal;
   font-style: normal;
 }
-/* TEMP */
+
 body {
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
+  flex-direction: row;
   align-items: center;
 }
 
+.ui {
+  padding: 0 20px;
+}
+.enable-keyboard input {
+  cursor: pointer;
+  outline: none;
+}
+
+.microprocessor8085 {
+  position: relative;
+  padding: 0 20px;
+  width: 928px;
+  height: 577px;
+}
+.microprocessor8085-img {
+  position: absolute;
+  width: 976px;
+}
+
 .reset-button button {
+  position: absolute;
+  top: 42.5px;
+  left: 94.25px;
   width: 70px;
   height: 70px;
   font-family: system-ui;
@@ -23,18 +42,42 @@ body {
   font-weight: 600;
   color: #fff;
   background: #f92f2f;
-  border: solid 1px gray;
+  border: solid 2px #fff;
   border-radius: 7.5px;
   cursor: pointer;
 }
 
+.power-led {
+  position: absolute;
+  top: 422.35px;
+  left: 767.35px;
+  width: 6px;
+  height: 6px;
+  background-color: red;
+  border-radius: 100%;
+  border: 3px solid transparent;
+  box-shadow: 0 0 8px 4px rgb(255 17 0);
+}
+.power-switch {
+  position: absolute;
+  top: 376.5px;
+  left: 812px;
+  width: 15px;
+  height: 15px;
+  background-color: #353535;
+  cursor: pointer;
+  transition: left 100ms ease-in 100ms;
+}
+
 .screen {
-  position: relative;
+  position: absolute;
+  top: 407px;
+  left: 299px;
   width: 400px;
   height: 90px;
   border: solid 3px #151515;
   border-radius: 4px;
-  background-color: #54de3f;
+  background-color: #e7d849;
   margin-bottom: 10px;
   cursor: pointer;
 }

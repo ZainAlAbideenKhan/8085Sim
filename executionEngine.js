@@ -1,3 +1,4 @@
+import { opp_cache, opp_log } from "./globals.js";
 import { HexNumber } from "./hexnum.js";
 
 class MP8085ExeEngine {
@@ -134,18 +135,18 @@ class MP8085ExeEngine {
   }
 
   fetchInstrName() {
-    if (this.registers.PrgmCount in this.ram.memory_map) {
-      let instr = this.ram.memory_map[this.registers.PrgmCount];
+    if (this.registers.PC in this.ram.memory_map) {
+      let instr = this.ram.memory_map[this.registers.PC];
       return instr.split(" ")[0];
     } else return null;
   }
 
   inrPrgmCount() {
-    this.registers.PrgmCount = HexNumber.addHex(this.registers.PrgmCount, 1);
+    this.registers.PC = HexNumber.addHex(this.registers.PC, 1);
   }
 
   setPrgmCount(adr) {
-    this.registers.PrgmCount = adr;
+    this.registers.PC = adr;
   }
 
   fetchData(adr = null) {
@@ -155,8 +156,8 @@ class MP8085ExeEngine {
       } else {
         return "00";
       }
-    } else if (this.registers.PrgmCount in this.ram.memory_map) {
-      let data = this.ram.memory_map[this.registers.PrgmCount];
+    } else if (this.registers.PC in this.ram.memory_map) {
+      let data = this.ram.memory_map[this.registers.PC];
       return data;
     } else return null;
   }
@@ -166,7 +167,7 @@ class MP8085ExeEngine {
   }
 
   splitInstr() {
-    let instr = this.ram.memory_map[this.registers.PrgmCount];
+    let instr = this.ram.memory_map[this.registers.PC];
     instr = instr.split(/[\s,]+/);
     return instr;
   }
@@ -187,6 +188,18 @@ class MP8085ExeEngine {
     } else {
       return this.registers[reg];
     }
+  }
+
+  loadStackPtr(adr = null) {
+    if(adr == null) {
+      adr = this.registers.PC;
+      this.inrPrgmCount(); //moved forward next address will dealth in below code
+    }
+    let data = this.fetchData(adr);
+    this.registers.SP = data;
+    adr = HexNumber.addHex(adr, 1);
+    data = this.fetchData(adr);
+    this.registers.SP = data + this.registers.SP;
   }
 
   // instruction
@@ -211,8 +224,17 @@ class MP8085ExeEngine {
     return false;
   }
   LXI() {
+    
     let reg = this.splitInstr()[1];
     this.inrPrgmCount();
+    
+    // code for Stack pointer
+    if(reg == "SP") {
+      this.loadStackPtr();
+      this.inrPrgmCount();
+      this.inrPrgmCount();
+      return false;
+    }
 
     let log_data = [];
 
@@ -267,13 +289,16 @@ class MP8085ExeEngine {
   }
   LHLD() {
     this.inrPrgmCount();
-    let l_bit = this.fetchData();
+    let adr = this.fetchData();
     this.inrPrgmCount();
-    let h_bit = this.fetchData();
-    this.setReg("H", h_bit);
-    this.setReg("L", l_bit);
+    adr = this.fetchData() + adr;
 
-    opp_log.push(`HL <- ${h_bit + l_bit}`);
+    this.setReg("L", this.fetchData(adr));
+    opp_log.push(`L <- [${adr}](${this.fetchData(adr)})`);
+    
+    adr = HexNumber.addHex(adr, 1);
+    this.setReg("H", this.fetchData(adr));
+    opp_log.push(`H <- [${adr}](${this.fetchData(adr)})`);
 
     this.inrPrgmCount();
     return false;
@@ -289,7 +314,7 @@ class MP8085ExeEngine {
     opp_log.push(`[${adr}] <- L(${l_bit})`);
     this.storeData(adr, l_bit);
 
-    adr = HexNumber.addHex(adr, '1');
+    adr = HexNumber.addHex(adr, "1");
     this.storeData(adr, h_bit);
     opp_log.push(`[${adr}] <- H(${h_bit})`);
 
@@ -403,7 +428,7 @@ class MP8085ExeEngine {
   }
   INR() {
     let reg = this.splitInstr()[1];
-    let inrc = HexNumber.add(this.getReg(reg), 1);
+    let inrc = HexNumber.add(this.getReg(reg), "01");
     this.setReg(reg, inrc);
 
     opp_log.push(`${reg}(${this.getReg(reg)})++`);
@@ -413,7 +438,7 @@ class MP8085ExeEngine {
   }
   DCR() {
     let reg = this.splitInstr()[1];
-    let dcrc = HexNumber.sub(this.getReg(reg), 1);
+    let dcrc = HexNumber.sub(this.getReg(reg), "01");
     this.setReg(reg, dcrc);
 
     opp_log.push(`${reg}(${this.getReg(reg)})--`);
@@ -514,9 +539,9 @@ class MP8085ExeEngine {
 
     let l_sum = HexNumber.add(this.getReg(regL), this.getReg("L"));
     let h_sum;
-    if (opp_cache.CY) h_sum = HexNumber.add(this.getReg('H'), "01");
+    if (opp_cache.CY) h_sum = HexNumber.add(this.getReg("H"), "01");
     h_sum = HexNumber.add(this.getReg(regH), h_sum);
-    
+
     opp_log.push(
       `HL <- HL(${this.getReg("H") + this.getReg("L")}) + ${
         this.getReg(regH) + this.getReg(regL)
@@ -529,9 +554,31 @@ class MP8085ExeEngine {
     this.inrPrgmCount();
     return 0;
   }
-  CMA() {}
-  CMP() {}
-  CPI() {}
+  CMA() {
+    let a = this.getReg("A");
+    a = HexNumber.binCompliment(a, "01");
+    this.setReg("A", a);
+
+    opp_log.push(`A <- Ā(${a})`);
+    this.inrPrgmCount();
+    return 0;
+  }
+  CMP() {
+    let reg = this.splitInstr()[1];
+    HexNumber.sub(this.getReg("A"), this.getReg(reg));
+
+    opp_log.push(`COMPARE A WITH ${reg}(${this.getReg(reg)})`);
+    this.inrPrgmCount();
+    return 0;
+  }
+  CPI() {
+    let opr = this.splitInstr()[1];
+    HexNumber.sub(this.getReg("A"), opr);
+
+    opp_log.push(`COMPARE A WITH ${opr}`);
+    this.inrPrgmCount();
+    return 0;
+  }
   JMP() {
     this.inrPrgmCount();
     let l_bit = this.splitInstr()[0];
@@ -554,6 +601,8 @@ class MP8085ExeEngine {
     } else {
       opp_log.push("CY!= 1, JUMP IGNORED");
       this.inrPrgmCount();
+      this.inrPrgmCount();
+      this.inrPrgmCount();
     }
 
     return false;
@@ -569,6 +618,8 @@ class MP8085ExeEngine {
       opp_log.push(`CY = 0, JUMP TO ${h_bit + l_bit}`);
     } else {
       opp_log.push("CY!= 0, JUMP IGNORED");
+      this.inrPrgmCount();
+      this.inrPrgmCount();
       this.inrPrgmCount();
     }
 
@@ -586,6 +637,8 @@ class MP8085ExeEngine {
     } else {
       opp_log.push("Z != 1, JUMP IGNORED");
       this.inrPrgmCount();
+      this.inrPrgmCount();
+      this.inrPrgmCount();
     }
 
     return false;
@@ -601,6 +654,8 @@ class MP8085ExeEngine {
       opp_log.push(`Z = 0, JUMP TO ${h_bit + l_bit}`);
     } else {
       opp_log.push("Z != 0, JUMP IGNORED");
+      this.inrPrgmCount();
+      this.inrPrgmCount();
       this.inrPrgmCount();
     }
 

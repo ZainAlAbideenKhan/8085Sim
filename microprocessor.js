@@ -1,4 +1,5 @@
 import instruction from "./instruction.json" assert { type: "json" };
+import { opp_cache, opp_log, opp_logClear } from "./globals.js";
 import { HexNumber } from "./hexnum.js";
 import { RAM } from "./ram.js";
 import { MP8085ExeEngine } from "./executionEngine.js";
@@ -11,8 +12,19 @@ class Reg8085 {
     this.E = "00";
     this.H = "00";
     this.L = "00";
-    this.PrgmCount = "";
-    this.stackPtr = "";
+    this.PC = "";
+    this.SP = "FFFF";
+  }
+  reset() {
+    this.A = "00";
+    this.B = "00";
+    this.C = "00";
+    this.D = "00";
+    this.E = "00";
+    this.H = "00";
+    this.L = "00";
+    this.PC = "";
+    this.SP = "FFFF";
   }
 }
 
@@ -27,6 +39,8 @@ class MP8085 extends MP8085ExeEngine {
     this.htm_text = document.querySelector(".screen .text");
     this.htm_input = document.querySelector(".screen .input");
     this.htm_reset_btn = document.querySelector("#reset-btn");
+    this.htm_power_btn = document.querySelector(".power-switch");
+    this.htm_power_led = document.querySelector(".power-led");
   }
   position_screen(text = null, input = null) {
     if (text != null) {
@@ -34,6 +48,28 @@ class MP8085 extends MP8085ExeEngine {
     }
     if (input != null) {
       this.htm_input.style.left = input + "px";
+    }
+  }
+  power(to_state = null) {
+    if (to_state == null) to_state = this.mp_state != "off" ? "off" : "on";
+
+    if (to_state == "on") {
+      this.htm_power_btn.style.left = "812px";
+      this.htm_power_led.style.display = "";
+      this.htm_text.innerHTML = "STARTING...";
+      setTimeout(() => {
+        this.start();
+      }, 700);
+
+      return 1;
+    } else if (to_state == "off") {
+      this.htm_power_led.style.display = "none";
+      this.htm_power_btn.style.left = "785px";
+      this.htm_text.innerHTML = "";
+      this.htm_input.innerHTML = "";
+      this.mp_state = "off";
+
+      return 0;
     }
   }
   start() {
@@ -117,9 +153,10 @@ class MP8085 extends MP8085ExeEngine {
     this.mp_state = "inp execAdr";
   }
   execute() {
-    this.registers.PrgmCount = this.htm_input.innerHTML.toUpperCase();
+    this.registers.PC = this.htm_input.innerHTML.toUpperCase();
     // reset
     this.htm_input.innerHTML = "";
+    opp_logClear();
 
     this.execEngine();
 
@@ -153,6 +190,59 @@ class MP8085 extends MP8085ExeEngine {
       return true;
     } else {
       return false;
+    }
+  }
+  keyboardToMP(key) {
+    if (mp.mp_state == "start") {
+      if (key == "1") {
+        mp.codeOption();
+      } else if (key.toUpperCase() == "M") {
+        mp.inpDataAdr();
+      } else if (key.toUpperCase() == "G") {
+        mp.inpExecAdr();
+      }
+    } else if (mp.mp_state == "code option") {
+      if (key.toUpperCase() == "A") {
+        mp.ramAddress();
+      }
+    } else if (mp.mp_state == "inp ramAdr") {
+      if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 4) {
+        mp.htm_input.append(key);
+      } else if (key == "Enter") {
+        mp.startCodeInp();
+      }
+    } else if (mp.mp_state == "inp assm") {
+      if (
+        MP8085.checkValidInstructionChar(key) &&
+        mp.htm_input.innerHTML.length <= 16
+      ) {
+        mp.htm_input.append(key);
+      } else if (key == "Enter") {
+        mp.inpCode();
+      } else if (key == "\\") {
+        mp.htm_input.innerHTML = mp.htm_input.innerHTML.slice(
+          0,
+          mp.htm_input.innerHTML.length - 1
+        );
+      }
+    } else if (mp.mp_state == "inp dataAdr") {
+      if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 4) {
+        mp.htm_input.append(key);
+      } else if (key == "Enter") {
+        mp.startDataInp();
+      }
+    } else if (mp.mp_state == "inp data") {
+      if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 2) {
+        mp.htm_input.append(key);
+      } else if (key == "Enter") {
+        mp.inpData();
+      }
+    } else if (mp.mp_state == "inp execAdr") {
+      if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 4) {
+        mp.htm_input.append(key);
+      } else if (key == "$") {
+        mp.execute();
+      }
     }
   }
 }

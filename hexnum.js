@@ -1,3 +1,4 @@
+import { opp_cache, opp_log } from "./globals.js";
 class BinNumber {
   static toNearestByte(a) {
     if (a.length % 8 == 0) return a;
@@ -161,6 +162,12 @@ class HexNumber {
 
     HexNumber.truncateHex(result, 2);
     return result;
+  }
+  static binCompliment(num, compli) {
+    if(compli > 2 && compli < 1) return num;
+    num = BinNumber.HextoBin(num);
+    num = BinNumber.compliment(num, compli);
+    return HexNumber.BintoHex(num);
   }
 }
 

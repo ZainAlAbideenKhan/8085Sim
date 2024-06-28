@@ -4,9 +4,19 @@ let opp_cache = {
   P: false,
   AC: false,
   CY: false,
+  reset: function() {
+    this.Z = false;
+    this.S = false;
+    this.P = false;
+    this.AC = false;
+    this.CY = false;
+  }
 };
 
 let opp_log = [];
+function opp_logClear() {
+  opp_log = [];
+}
 
 window.printOppLog = function () {
   opp_log.forEach((i) => {
@@ -14,5 +24,4 @@ window.printOppLog = function () {
   });
 };
 
-window.opp_cache = opp_cache;
-window.opp_log = opp_log;
+export {opp_cache, opp_log, opp_logClear};

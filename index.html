@@ -1,32 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>8085 Sim</title>
-  <style>
-    * {
-      padding: 0;
-      margin: 0;
-    }
-  </style>
-  <link rel="stylesheet" href="./microprocessor.css">
-</head>
-<body>
-  <div class="screen">
-    <span class="text">STUDENT-85</span>
-    <span class="input"></span>
-  </div>
-  <div class="reset-button">
-    <button id="reset-btn">RESET</button>
-  </div>
-</body>
-<script type="module" src="./globals.js"></script>
-<script type="module" src="./hexnum.js"></script>
-<script type="module" src="./ram.js"></script>
-<script type="module" src="./executionEngine.js"></script>
-<script type="module" src="./microprocessor.js"></script>
-<script type="module" src="./main.js"></script>
-<!-- test -->
-<script type="module" src="./test.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>8085 Sim</title>
+    <style>
+      * {
+        padding: 0;
+        margin: 0;
+      }
+    </style>
+    <link rel="stylesheet" href="./microprocessor.css" />
+  </head>
+  <body>
+    <div class="ui">
+      <input class="size-selector" type="range" value="100">
+      <div class="radio-btns">
+        <label for="radio-green">Green</label>
+        <input type="radio" id="radio-green" name="screenColor" value="#54de3f">
+        <label for="radio-blue">Blue</label>
+        <input type="radio" id="radio-blue" name="screenColor" value="#2bc2d5">
+        <label for="radio-yellow">Yellow</label>
+        <input type="radio" id="radio-yellow" name="screenColor" value="#e7d849" checked>
+      </div>
+      <div class="enable-keyboard">
+        <input type="text" class="mobile-keyboard-enable" value="Activate mobile keyboard">
+      </div>
+    </div>
+    <div class="microprocessor8085">
+      <img class="microprocessor8085-img" src="./8085MPKit.svg">
+      <div class="power-led"></div>
+      <div class="power-switch">
+        <img src="./power-switch.svg">
+      </div>
+      <div class="screen">
+        <span class="text">STUDENT-85</span>
+        <span class="input"></span>
+      </div>
+      <div class="reset-button">
+        <button id="reset-btn">RESET</button>
+      </div>
+    </div>
+  </body>
+  <script type="module" src="./globals.js"></script>
+  <script type="module" src="./hexnum.js"></script>
+  <script type="module" src="./ram.js"></script>
+  <script type="module" src="./executionEngine.js"></script>
+  <script type="module" src="./microprocessor.js"></script>
+  <script type="module" src="./main.js"></script>
+  <!-- test -->
+  <script type="module" src="./test.js"></script>
 </html>
