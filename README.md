@@ -97,13 +97,6 @@
 <li>JNC</li>
 <li>JZ</li>
 <li>JNZ</li>
-<li>CALL</li>
-<li>RET</li>
-<li>RST</li>
-<li>PUSH</li>
-<li>POP</li>
-<li>IN</li>
-<li>OUT</li>
 <li>HLT</li>
   </ul>
 </h4>
