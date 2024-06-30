@@ -190,16 +190,32 @@ class MP8085ExeEngine {
     }
   }
 
-  loadStackPtr(adr = null) {
-    if(adr == null) {
-      adr = this.registers.PC;
-      this.inrPrgmCount(); //moved forward next address will dealth in below code
+  setStackPtr(adr) {
+    if (adr == "atPC") {
+      let stack_adr = this.fetchData(this.getReg("PC"));
+      this.inrPrgmCount();
+      stack_adr = this.fetchData(this.getReg("PC")) + stack_adr;
+      this.setReg("SP", stack_adr);      
     }
-    let data = this.fetchData(adr);
-    this.registers.SP = data;
-    adr = HexNumber.addHex(adr, 1);
-    data = this.fetchData(adr);
-    this.registers.SP = data + this.registers.SP;
+  }
+
+  push(opr) {
+    if (opr == "PC") {
+      let data = this.registers.PC;
+      this.registers.SP = HexNumber.subHex(this.registers.SP, 1);
+      this.storeData(this.registers.SP, data.slice(2));
+      this.registers.SP = HexNumber.subHex(this.registers.SP, 1);
+      this.storeData(this.registers.SP, data.slice(0, 2));
+    } else {
+      this.registers.SP = HexNumber.subHex(this.registers.SP, 1);
+      this.storeData(this.registers.SP, opr);
+    }
+  }
+
+  pop() {
+    let data = this.fetchData(this.getReg("SP"));
+    this.setReg("SP", HexNumber.addHex(this.registers.SP, 1));
+    return data;
   }
 
   // instruction
@@ -224,14 +240,12 @@ class MP8085ExeEngine {
     return false;
   }
   LXI() {
-    
     let reg = this.splitInstr()[1];
     this.inrPrgmCount();
-    
+
     // code for Stack pointer
-    if(reg == "SP") {
-      this.loadStackPtr();
-      this.inrPrgmCount();
+    if (reg == "SP") {
+      this.setStackPtr("atPC");
       this.inrPrgmCount();
       return false;
     }
@@ -295,7 +309,7 @@ class MP8085ExeEngine {
 
     this.setReg("L", this.fetchData(adr));
     opp_log.push(`L <- [${adr}](${this.fetchData(adr)})`);
-    
+
     adr = HexNumber.addHex(adr, 1);
     this.setReg("H", this.fetchData(adr));
     opp_log.push(`H <- [${adr}](${this.fetchData(adr)})`);
@@ -661,13 +675,56 @@ class MP8085ExeEngine {
 
     return false;
   }
-  CALL() {}
-  RET() {}
+
+  PUSH() {
+    let h_reg = this.splitInstr()[1];
+    let l_reg = this.getLowerPairNm(h_reg);
+    
+    this.push(this.getReg(h_reg));
+    this.push(this.getReg(l_reg));
+
+    this.inrPrgmCount();
+    return false;
+  }
+  POP() {
+    let h_reg = this.splitInstr()[1];
+    let l_reg = this.getLowerPairNm(h_reg);
+
+    this.setReg(l_reg, this.pop());
+    this.setReg(h_reg, this.pop());
+
+    this.inrPrgmCount();
+    return false;
+  }
+  
+  CALL() {
+    this.inrPrgmCount();
+    let subrout_adr = this.fetchData();
+    this.inrPrgmCount();
+    subrout_adr = this.fetchData() + subrout_adr;
+
+    this.inrPrgmCount();
+    this.push("PC");
+
+    opp_log.push(`CALLED [${subrout_adr}]`);
+
+    this.setPrgmCount(subrout_adr);
+    return false;
+  }
+  RET() {
+    let ret_adr = this.pop();
+    ret_adr = ret_adr + this.pop();
+    this.setPrgmCount(ret_adr);
+
+    opp_log.push(`RETURN TO [${ret_adr}]`);
+
+    return false;
+  }
+
   RST() {}
-  PUSH() {}
-  POP() {}
   IN() {}
   OUT() {}
+  
   HLT() {
     opp_log.push("HAULT");
     return true;
