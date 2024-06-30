@@ -6,22 +6,66 @@
 <span style="background: yellow; color: red">NOTE: THIS VERSION DOES NOT INCLUDE ERROR TESTING SO WRITE EVERYTHING CAREFULLY WHILE ENTERING COMMANDS.</span>
 
 <h2>HOW TO USE Simulator:</h2>
-<ul>
-  <li>In PC, it directly takes commands from the keyboard.</li>
-  <li>In Mobile Phone, you can see an option on the left saying "Activate mobile keyboard," you can click on it to activate your mobile keyboard and start entering the commands.</li>
+<h4> FOR PC </h4>
+<ol>
   <li>
-    <h3><strong>Commands</strong></h3>
-    <p>Note - all commands are case insensitive, you can enter in any command case. While Seeing the "Student-85" screen the following commands will work:</p>
+    <strong>Entering Code</strong>
     <ol>
-      <li><strong>Assembly code</strong> - Type '1' and then 'a' to enter assembly code. After entering, it asks for a RAM address to start entering code. After entering the address, press enter and start writing your assembly code.</li>
-      <li><strong>Data at RAM address</strong> - Type 'M' to enter data at the RAM address, enter the address of the memory location, and then hit enter.</li>
-      <li><strong>Program Address to Execute</strong> - Type 'G' to enter the program address for execution, enter your program address, and then press '$' (use shift + 4 for '$').</li>
+      <li>Type '1' (do not press enter yet)</li>
+      <li>Type 'a' and press 'Enter'</li>
+      <li>It will ask for starting Ram address of code.</li>
+      <li>After Type stating address, Press 'Enter'</li>
+      <li>Now in the screen you will see the starting address and there you will start entering your instructions</li>
+      <li>After Typing instruction press enter, Microprocessor will automatically jump to next address for you to enter next instruction</li>
+      <li>After instering last HLT instruction press reset button</li>
+      Note - if you made a mistake in data input you may press '\', used as Backspace. This only worls in Code Writing Screen only
     </ol>
   </li>
-  <li>The blue range input is for resizing the microprocessor kit.</li>
-  <li>You can choose the screen color with radio buttons.</li>
-  <li>On the right of the screen, there is a sliding power switch for the Microprocessor kit. The red LED below indicates power on/off.</li>
-</ul>
+  <li>
+    <strong>Entering Data</strong>
+    <ol>
+      <li>Type M (do not press Enter)</li>
+      <li>Type your data address and press Enter</li>
+      <li>After entering data address you will see your data address and previous data stored there(may be garbge)</li>
+      <li>Type your data and press 'Enter'</li>
+      <li>Microprocess after 'Enter' will store data and jump to the next location</li>
+      <li>After data input, press Reset</li>
+    </ol>
+  </li>
+  <li>
+    <strong>Entering Data</strong>
+    <ol>
+      <li>Type M (do not press Enter)</li>
+      <li>Type your data address and press Enter</li>
+      <li>After entering data address you will see your data address and previous data stored there(may be garbge)</li>
+      <li>Type your data and press 'Enter'</li>
+      <li>Microprocess after 'Enter' will store data and jump to the next location</li>
+      <li>After data input, press Reset</li>
+    </ol>
+  </li>
+  <li>
+    <strong>Executing Code</strong>
+    <ol>
+      <li>Type G (do not press Enter)</li>
+      <li>Type your starting code address and press Shift + 4 (for '$' character)</li>
+      <li>After entering code address you will see 'Execution' on screen, which means code is successfully executed.</li>
+      <li>Press Reset</li>
+    </ol>
+  </li>
+</ol>
+
+<h4> FOR MOBILE PHONES </h4>
+<ul> 
+  <li>Everything is same, Each process is same as PC.</li>
+  <li>There are some changes in Keyboard.
+    <br>
+    On Mobile devices:-
+    <ol>
+      <li>'Enter' Key is '.' character</li>
+      <li>For Backslash use '/' character</li>
+    </ol>
+  </li>
+</ul> 
 
 <h4>
   Working instructions in this 8085 Microprocessor:-
