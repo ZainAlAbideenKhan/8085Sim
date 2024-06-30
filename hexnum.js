@@ -145,6 +145,12 @@ class HexNumber {
     return HexNumber.toHex(a + b);
   }
 
+  static subHex(a, b) {
+    a = HexNumber.toInt(a);
+    b = HexNumber.toInt(b);
+    return HexNumber.toHex(a - b);
+  }
+
   static add(a, b) {
     a = BinNumber.HextoBin(a);
     b = BinNumber.HextoBin(b);
