@@ -110,6 +110,12 @@ class MP8085 extends MP8085ExeEngine {
       this.ram.memory_map[HexNumber.add(ram_adr, num)] = instr;
     });
   }
+  backspaceInp() {
+    mp.htm_input.innerHTML = mp.htm_input.innerHTML.slice(
+      0,
+      mp.htm_input.innerHTML.length - 1
+    );
+  }
   inpDataAdr() {
     this.position_screen(4, 23);
     this.htm_text.innerHTML = "M";
@@ -210,6 +216,8 @@ class MP8085 extends MP8085ExeEngine {
         mp.htm_input.append(key);
       } else if (key == "Enter") {
         mp.startCodeInp();
+      } else if (key == "\\") {
+        this.backspaceInp();
       }
     } else if (mp.mp_state == "inp assm") {
       if (
@@ -220,28 +228,31 @@ class MP8085 extends MP8085ExeEngine {
       } else if (key == "Enter") {
         mp.inpCode();
       } else if (key == "\\") {
-        mp.htm_input.innerHTML = mp.htm_input.innerHTML.slice(
-          0,
-          mp.htm_input.innerHTML.length - 1
-        );
+        this.backspaceInp();
       }
     } else if (mp.mp_state == "inp dataAdr") {
       if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 4) {
         mp.htm_input.append(key);
       } else if (key == "Enter") {
         mp.startDataInp();
+      } else if (key == "\\") {
+        this.backspaceInp();
       }
     } else if (mp.mp_state == "inp data") {
       if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 2) {
         mp.htm_input.append(key);
       } else if (key == "Enter") {
         mp.inpData();
+      } else if (key == "\\") {
+        this.backspaceInp();
       }
     } else if (mp.mp_state == "inp execAdr") {
       if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 4) {
         mp.htm_input.append(key);
       } else if (key == "$") {
         mp.execute();
+      } else if (key == "\\") {
+        this.backspaceInp();
       }
     }
   }

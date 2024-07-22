@@ -7,6 +7,7 @@
 
 <h2>HOW TO USE Simulator:</h2>
 <h4> FOR PC </h4>
+<h5>Note - if you made a mistake during input you can press '\', for Backspace.</h5>
 <ol>
   <li>
     <strong>Entering Code</strong>
@@ -18,7 +19,6 @@
       <li>Now in the screen you will see the starting address and there you will start entering your instructions</li>
       <li>After Typing instruction press enter, Microprocessor will automatically jump to next address for you to enter next instruction</li>
       <li>After instering last HLT instruction press reset button</li>
-      Note - if you made a mistake in data input you may press '\', used as Backspace. This only worls in Code Writing Screen only
     </ol>
   </li>
   <li>
