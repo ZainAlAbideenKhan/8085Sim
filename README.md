@@ -9,7 +9,7 @@
 
 <h2>HOW TO USE Simulator:</h2>
 <h4> FOR PC </h4>
-<h5>Note - if you made a mistake during input you can press '\', for Backspace.</h5>
+<em>Note - if you made a mistake during input you can press '\', for Backspace.</em>
 <ol>
   <li>
     <strong>Entering Code</strong>
