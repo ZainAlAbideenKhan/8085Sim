@@ -1,4 +1,4 @@
-import instruction from "./instruction.json" assert { type: "json" };
+import instruction from "./8085instr.json" assert { type: "json" };
 import { opp_cache, opp_log, opp_logClear } from "./globals.js";
 import { HexNumber } from "./hexnum.js";
 import { RAM } from "./ram.js";
@@ -29,11 +29,11 @@ class Reg8085 {
 }
 
 class MP8085 extends MP8085ExeEngine {
-  constructor() {
+  constructor(ram_size, address_bus_size) {
     super();
     this.mp_state = "start";
     this.screen_selected = false;
-    this.ram = new RAM();
+    this.ram = new RAM(ram_size, address_bus_size);
     this.registers = new Reg8085();
     this.htm_screen = document.querySelector(".screen");
     this.htm_text = document.querySelector(".screen .text");
@@ -101,8 +101,14 @@ class MP8085 extends MP8085ExeEngine {
   inpCode() {
     let ram_adr = this.htm_text.innerHTML.toUpperCase();
     let raw_code = this.htm_input.innerHTML.toUpperCase();
-    this.htm_input.innerHTML = "";
 
+    // check if given instruction is correct
+    if (!this.validateInstr(raw_code)) {
+      this.wrongInput("instr");
+      return;
+    }
+
+    this.htm_input.innerHTML = "";
     let code = MP8085.instrMemorySplit(raw_code);
     this.htm_text.innerHTML = HexNumber.add(ram_adr, code.length);
 
@@ -111,9 +117,9 @@ class MP8085 extends MP8085ExeEngine {
     });
   }
   backspaceInp() {
-    mp.htm_input.innerHTML = mp.htm_input.innerHTML.slice(
+    this.htm_input.innerHTML = this.htm_input.innerHTML.slice(
       0,
-      mp.htm_input.innerHTML.length - 1
+      this.htm_input.innerHTML.length - 1
     );
   }
   inpDataAdr() {
@@ -168,7 +174,89 @@ class MP8085 extends MP8085ExeEngine {
 
     this.htm_text.innerHTML = "EXECUTING";
   }
-  // utility
+  // UTILITY FUNCTIONS
+  /**
+   * This functions detects the type of value(given as string).
+   * @param {string} value takes a string value to classifies what tyoe of value it is
+   * @returns returns a string code for value type detedted.
+   */
+  static datatype(value) {
+    if (/^[0-9A-F]{2}$/.test(value)) {
+      return "2BH";
+    } else if (/^[0-9A-F]{4}$/.test(value)) {
+      return "4BH";
+    } else if (/^[ABCDEHL]$/.test(value)) {
+      return "reg";
+    } else {
+      return "unknown";
+    }
+  }
+  /**
+   * This function validates weather a instruction is valid or not.
+   * @param {string} instr - string instruction to be checked
+   * @returns Returns a `boolean` about validity of instruction string
+   */
+  validateInstr(instr) {
+    instr = instr.split(/,\s*|\s+/);
+
+    let operator = instr[0];
+    let operand = instr.slice(1);
+
+    if (!(operator in instruction)) {
+      console.log("WRONG_OPERATOR");
+      return false;
+    }
+
+    for (let i = 0; i < operand.length; i++) {
+      let optype = MP8085.datatype(operand[i]);
+      if (optype != instruction[operator].argType[i]) {
+        console.log("WRONG_OPERAND");
+        return false;
+      }
+    }
+    return true;
+  }
+  /**
+   * Checks validity of 4 bit hex address
+   * @param {string} address hex address to be checked
+   * @returns returns a boolean if the checked value is 4BH (4 bit Hex Number)
+   */
+  validateAdrs(address) {
+    if (MP8085.datatype(address) != "4BH") {
+      return false;
+    } else {
+      return true;
+    }
+  }
+  /**
+   * Shows error message in MP
+   * @param {"instr" | "asmcode"} place_of_error Place where error occured
+   */
+  wrongInput(place_of_error) {
+    this.mp_state = "error";
+
+    switch (place_of_error) {
+      // at instruction input
+      case "instr":
+        this.htm_input.innerHTML = "WRONG INPUT";
+        setTimeout(() => {
+          this.mp_state = "inp assm";
+          this.htm_input.innerHTML = "";
+        }, 1000);
+        break;
+      // at asmcode address input
+      case "asmcode":
+        this.htm_input.innerHTML = "WRONG ADDRESS";
+        setTimeout(() => {
+          this.mp_state = "inp ramAdr";
+          this.htm_input.innerHTML = "";
+        }, 1000);
+        break;
+
+      default:
+        break;
+    }
+  }
   static instrMemorySplit(raw_instr) {
     raw_instr = raw_instr.trim();
     let instr = raw_instr.split(/[\s,]+/);
@@ -199,58 +287,63 @@ class MP8085 extends MP8085ExeEngine {
     }
   }
   keyboardToMP(key) {
-    if (mp.mp_state == "start") {
+    if (this.mp_state == "start") {
       if (key == "1") {
-        mp.codeOption();
+        this.codeOption();
       } else if (key.toUpperCase() == "M") {
-        mp.inpDataAdr();
+        this.inpDataAdr();
       } else if (key.toUpperCase() == "G") {
-        mp.inpExecAdr();
+        this.inpExecAdr();
       }
-    } else if (mp.mp_state == "code option") {
+    } else if (this.mp_state == "code option") {
       if (key.toUpperCase() == "A") {
-        mp.ramAddress();
+        this.ramAddress();
       }
-    } else if (mp.mp_state == "inp ramAdr") {
-      if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 4) {
-        mp.htm_input.append(key);
+    } else if (this.mp_state == "inp ramAdr") {
+      if (HexNumber.isValidDigit(key) && this.htm_input.innerHTML.length < 4) {
+        this.htm_input.append(key);
       } else if (key == "Enter") {
-        mp.startCodeInp();
+        // check if given address is correct
+        if (!this.validateAdrs(this.htm_input.innerHTML)) {
+          this.wrongInput("asmcode");
+          return;
+        }
+        this.startCodeInp();
       } else if (key == "\\") {
         this.backspaceInp();
       }
-    } else if (mp.mp_state == "inp assm") {
+    } else if (this.mp_state == "inp assm") {
       if (
         MP8085.checkValidInstructionChar(key) &&
-        mp.htm_input.innerHTML.length <= 16
+        this.htm_input.innerHTML.length <= 16
       ) {
-        mp.htm_input.append(key);
+        this.htm_input.append(key);
       } else if (key == "Enter") {
-        mp.inpCode();
+        this.inpCode();
       } else if (key == "\\") {
         this.backspaceInp();
       }
-    } else if (mp.mp_state == "inp dataAdr") {
-      if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 4) {
-        mp.htm_input.append(key);
+    } else if (this.mp_state == "inp dataAdr") {
+      if (HexNumber.isValidDigit(key) && this.htm_input.innerHTML.length < 4) {
+        this.htm_input.append(key);
       } else if (key == "Enter") {
-        mp.startDataInp();
+        this.startDataInp();
       } else if (key == "\\") {
         this.backspaceInp();
       }
-    } else if (mp.mp_state == "inp data") {
-      if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 2) {
-        mp.htm_input.append(key);
+    } else if (this.mp_state == "inp data") {
+      if (HexNumber.isValidDigit(key) && this.htm_input.innerHTML.length < 2) {
+        this.htm_input.append(key);
       } else if (key == "Enter") {
-        mp.inpData();
+        this.inpData();
       } else if (key == "\\") {
         this.backspaceInp();
       }
-    } else if (mp.mp_state == "inp execAdr") {
-      if (HexNumber.isValidDigit(key) && mp.htm_input.innerHTML.length < 4) {
-        mp.htm_input.append(key);
+    } else if (this.mp_state == "inp execAdr") {
+      if (HexNumber.isValidDigit(key) && this.htm_input.innerHTML.length < 4) {
+        this.htm_input.append(key);
       } else if (key == "$") {
-        mp.execute();
+        this.execute();
       } else if (key == "\\") {
         this.backspaceInp();
       }

@@ -8,7 +8,8 @@ function isMobileDevice() {
   );
 }
 
-let mp = new MP8085();
+let mp = new MP8085(["0000", "FFFF"], "16Bits");
+window.MP8085 = MP8085;
 window.mp = mp;
 
 // UI
