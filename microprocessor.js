@@ -185,7 +185,7 @@ class MP8085 extends MP8085ExeEngine {
       return "2BH";
     } else if (/^[0-9A-F]{4}$/.test(value)) {
       return "4BH";
-    } else if (/^[ABCDEHL]$/.test(value)) {
+    } else if (/^[ABCDEHLM]$/.test(value)) {
       return "reg";
     } else {
       return "unknown";
