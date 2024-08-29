@@ -6,13 +6,18 @@
 }
 
 body {
+  position: relative;
   display: flex;
-  flex-direction: row;
+  flex-direction: column-reverse;
   align-items: center;
+  background-color: #a6d9dc;
+  justify-content: space-evenly;
 }
 
-.ui {
-  padding: 0 20px;
+.ui { 
+  padding: 5px 30px;
+  margin: 10px 0;
+  border: dotted 2px #44787c;
 }
 .enable-keyboard input {
   cursor: pointer;
@@ -99,4 +104,14 @@ body {
   top: 10px;
   left: 4px;
   color: #11200e;
+}
+/* developer info section */
+section.info-section {
+  position: absolute;
+  width: 30%;
+  left: 0;
+  bottom: 0;
+  font-size: 11px;
+  font-family: monospace;
+  padding: 7px 10px;
 }
