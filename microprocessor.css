@@ -12,6 +12,7 @@ body {
   align-items: center;
   background-color: #a6d9dc;
   justify-content: space-evenly;
+  height: 100vh;
 }
 
 .ui { 
