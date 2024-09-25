@@ -13,70 +13,77 @@
     <link rel="stylesheet" href="./microprocessor.css" />
   </head>
   <body>
-    <div class="ui">
-      <input class="size-selector" type="range" value="100" />
-      <div class="radio-btns">
-        <label for="radio-green">Green</label>
-        <input
-          type="radio"
-          id="radio-green"
-          name="screenColor"
-          value="#54de3f"
-        />
-        <label for="radio-blue">Blue</label>
-        <input
-          type="radio"
-          id="radio-blue"
-          name="screenColor"
-          value="#2bc2d5"
-        />
-        <label for="radio-yellow">Yellow</label>
-        <input
-          type="radio"
-          id="radio-yellow"
-          name="screenColor"
-          value="#e7d849"
-          checked
-        />
+    <main>
+      <div class="microprocessor8085">
+        <img class="microprocessor8085-img" src="./8085MPKit.svg" />
+        <div class="power-led"></div>
+        <div class="power-switch">
+          <img src="./power-switch.svg" />
+        </div>
+        <div class="screen">
+          <span class="text">STUDENT-85</span>
+          <span class="input"></span>
+        </div>
+        <div class="reset-button">
+          <button id="reset-btn">RESET</button>
+        </div>
       </div>
-      <div class="enable-keyboard">
-        <input
-          type="text"
-          class="mobile-keyboard-enable"
-          value="Activate mobile keyboard"
-        />
+      <!-- UI Options -->
+      <div class="ui">
+        <input class="size-selector" type="range" value="100" />
+        <div class="radio-btns">
+          <label for="radio-green">Green</label>
+          <input
+            type="radio"
+            id="radio-green"
+            name="screenColor"
+            value="#54de3f"
+          />
+          <label for="radio-blue">Blue</label>
+          <input
+            type="radio"
+            id="radio-blue"
+            name="screenColor"
+            value="#2bc2d5"
+          />
+          <label for="radio-yellow">Yellow</label>
+          <input
+            type="radio"
+            id="radio-yellow"
+            name="screenColor"
+            value="#e7d849"
+            checked
+          />
+        </div>
+        <div class="enable-keyboard">
+          <input
+            type="text"
+            class="mobile-keyboard-enable"
+            value="Activate mobile keyboard"
+          />
+        </div>
+        <div class="full-screen">
+          <button>Full Screen</button>
+        </div>
       </div>
-    </div>
-    <div class="microprocessor8085">
-      <img class="microprocessor8085-img" src="./8085MPKit.svg" />
-      <div class="power-led"></div>
-      <div class="power-switch">
-        <img src="./power-switch.svg" />
-      </div>
-      <div class="screen">
-        <span class="text">STUDENT-85</span>
-        <span class="input"></span>
-      </div>
-      <div class="reset-button">
-        <button id="reset-btn">RESET</button>
-      </div>
-    </div>
-    <section class="info-section">
-      <div class="developer-info">
-        <span>Developed By - Abdul Zainul Khan</span>
-        <span>BTech 3rd Year GEHU, Dehradun(2026)</span>
-        <span>Developed using raw JavaScript(ES6)</span>
-      </div>
-      <div class="help-guide">
-        For Help See read me ad GitHub -
-        <a
-          href="https://github.com/ZainAlAbideenKhan/8085Sim/blob/main/README.md"
-          target="_blank"
-          >Click Here</a
-        >
-      </div>
-    </section>
+      <section class="info-section">
+        <div class="developer-info">
+          <span>Developed By - Abdul Zainul Khan</span>
+          <span>BTech 3rd Year GEHU, Dehradun(2026)</span>
+          <span>Developed using raw JavaScript(ES6)</span>
+        </div>
+        <div class="help-guide">
+          For Help See read me ad GitHub -
+          <a
+            href="https://github.com/ZainAlAbideenKhan/8085Sim/blob/main/README.md"
+            target="_blank"
+            >Click Here</a
+          >
+        </div>
+      </section>
+    </main>
   </body>
+  <script type="module" src="./8085instr.js"></script>
   <script type="module" src="./globals.js"></script>
   <script type="module" src="./hexnum.js"></script>
   <script type="module" src="./ram.js"></script>

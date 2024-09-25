@@ -1,4 +1,4 @@
-import instruction from "./8085instr.json" assert { type: "json" };
+import instruction from "./8085instr.js";
 import { opp_cache, opp_log, opp_logClear } from "./globals.js";
 import { HexNumber } from "./hexnum.js";
 import { RAM } from "./ram.js";
@@ -219,18 +219,32 @@ class MP8085 extends MP8085ExeEngine {
   /**
    * Checks validity of 4 bit hex address
    * @param {string} address hex address to be checked
+   * @param {string} execpt array of all special values that can be passed without checking
    * @returns returns a boolean if the checked value is 4BH (4 bit Hex Number)
    */
-  validateAdrs(address) {
-    if (MP8085.datatype(address) != "4BH") {
-      return false;
-    } else {
+  validateAdrs(address, execpt = []) {
+    if (execpt.includes(address) || MP8085.datatype(address) == "4BH") {
       return true;
+    } else {
+      return false;
+    }
+  }
+  /**
+   * Checks validity of 2 bit hex data
+   * @param {string} data hex data to be checked
+   * @param {string} execpt array of all special values that can be passed without checking
+   * @returns returns a boolean if the checked value is 2BH (2 bit Hex Number)
+   */
+  validateHexData(data, execpt = []) {
+    if (execpt.includes(data) || MP8085.datatype(data) == "2BH") {
+      return true;
+    } else {
+      return false;
     }
   }
   /**
    * Shows error message in MP
-   * @param {"instr" | "asmcode"} place_of_error Place where error occured
+   * @param {"instr" | "asmcode" | "datadr" | "datainp" | "execAdr"} place_of_error Place where error occured
    */
   wrongInput(place_of_error) {
     this.mp_state = "error";
@@ -249,6 +263,37 @@ class MP8085 extends MP8085ExeEngine {
         this.htm_input.innerHTML = "WRONG ADDRESS";
         setTimeout(() => {
           this.mp_state = "inp ramAdr";
+          this.htm_input.innerHTML = "";
+        }, 1000);
+        break;
+
+      case "datadr":
+        this.htm_text.innerHTML = "";
+        this.htm_input.innerHTML = "WRONG ADDRESS";
+        setTimeout(() => {
+          this.mp_state = "inp dataAdr";
+          this.htm_text.innerHTML = "M";
+          this.htm_input.innerHTML = "";
+        }, 1000);
+        break;
+
+      case "datainp":
+        let data_adr = this.htm_text.innerHTML;
+        this.htm_text.innerHTML = "";
+        this.htm_input.innerHTML = "INVALID INPUT";
+        setTimeout(() => {
+          this.mp_state = "inp data";
+          this.htm_text.innerHTML = data_adr;
+          this.htm_input.innerHTML = "";
+        }, 1000);
+        break;
+
+      case "execAdr":
+        this.htm_text.innerHTML = "";
+        this.htm_input.innerHTML = "INVALID ADDRESS";
+        setTimeout(() => {
+          this.mp_state = "inp execAdr";
+          this.htm_text.innerHTML = "G";
           this.htm_input.innerHTML = "";
         }, 1000);
         break;
@@ -327,6 +372,11 @@ class MP8085 extends MP8085ExeEngine {
       if (HexNumber.isValidDigit(key) && this.htm_input.innerHTML.length < 4) {
         this.htm_input.append(key);
       } else if (key == "Enter") {
+        // validate data address
+        if (!this.validateAdrs(this.htm_input.innerHTML)) {
+          this.wrongInput("datadr");
+          return;
+        }
         this.startDataInp();
       } else if (key == "\\") {
         this.backspaceInp();
@@ -335,6 +385,11 @@ class MP8085 extends MP8085ExeEngine {
       if (HexNumber.isValidDigit(key) && this.htm_input.innerHTML.length < 2) {
         this.htm_input.append(key);
       } else if (key == "Enter") {
+        // validate data value
+        if (!this.validateHexData(this.htm_input.innerHTML, [""])) {
+          this.wrongInput("datainp");
+          return;
+        }
         this.inpData();
       } else if (key == "\\") {
         this.backspaceInp();
@@ -343,6 +398,11 @@ class MP8085 extends MP8085ExeEngine {
       if (HexNumber.isValidDigit(key) && this.htm_input.innerHTML.length < 4) {
         this.htm_input.append(key);
       } else if (key == "$") {
+        // validate data value
+        if (!this.validateAdrs(this.htm_input.innerHTML)) {
+          this.wrongInput("execAdr");
+          return;
+        }
         this.execute();
       } else if (key == "\\") {
         this.backspaceInp();

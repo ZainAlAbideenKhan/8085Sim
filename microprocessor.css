@@ -1,24 +1,26 @@
 @font-face {
-  font-family: 'square matrix regular';
-  src: url('https://raw.githubusercontent.com/ZainAlAbideenKhan/fonts/main/Square-Dot-Matrix.ttf') format('truetype');
+  font-family: "square matrix regular";
+  src: url("https://raw.githubusercontent.com/ZainAlAbideenKhan/fonts/main/Square-Dot-Matrix.ttf")
+    format("truetype");
   font-weight: normal;
   font-style: normal;
 }
 
-body {
+main {
   position: relative;
   display: flex;
-  flex-direction: column-reverse;
+  flex-direction: column;
   align-items: center;
   background-color: #a6d9dc;
-  justify-content: space-evenly;
   height: 100vh;
+  justify-content: space-between;
 }
 
-.ui { 
+.ui {
   padding: 5px 30px;
   margin: 10px 0;
   border: dotted 2px #44787c;
+  text-align: center;
 }
 .enable-keyboard input {
   cursor: pointer;
@@ -27,8 +29,9 @@ body {
 
 .microprocessor8085 {
   position: relative;
+  transform-origin: top left;
   padding: 0 20px;
-  width: 928px;
+  width: 976px;
   height: 577px;
 }
 .microprocessor8085-img {
@@ -91,7 +94,7 @@ body {
 .screen .text {
   position: absolute;
   font-size: 30px;
-  font-family: 'square matrix regular', sans-serif;
+  font-family: "square matrix regular", sans-serif;
   font-weight: 600;
   top: 10px;
   left: 50px;
@@ -100,7 +103,7 @@ body {
 .screen .input {
   position: absolute;
   font-size: 30px;
-  font-family: 'square matrix regular', sans-serif;
+  font-family: "square matrix regular", sans-serif;
   font-weight: 600;
   top: 10px;
   left: 4px;
@@ -115,4 +118,15 @@ section.info-section {
   font-size: 11px;
   font-family: monospace;
   padding: 7px 10px;
+}
+/* Full screen button */
+.full-screen button {
+  padding: 4px 15px;
+  background: #54dbe3;
+  border: 0;
+  border-radius: 2px;
+  cursor: pointer;
+}
+.full-screen button:active {
+  background-color: #1db3bb;
 }

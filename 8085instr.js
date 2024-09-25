@@ -1,4 +1,4 @@
-{
+let instruction = {
   "MOV": {
     "arguments": 2,
     "hasComma": true,
@@ -210,3 +210,4 @@
     "argType": []
   }
 }
+export { instruction }
