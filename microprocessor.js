@@ -1,4 +1,4 @@
-import instruction from "./8085instr.js";
+import { instruction } from "./8085instr.js";
 import { opp_cache, opp_log, opp_logClear } from "./globals.js";
 import { HexNumber } from "./hexnum.js";
 import { RAM } from "./ram.js";
