@@ -1,5 +1,5 @@
 <h1>8085 Microprocessor Kit Simulator</h1>
-<a href='https://zainalabideenkhan.github.io/8085Sim/'>click to use it directly</a>
+<a href='https://abdulzainulkhan.github.io/8085Sim/'>click to use it directly</a>
 <br>
 <strong>Hello Folks</strong>,
 
